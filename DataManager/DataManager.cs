@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YandexDisk.Client;
@@ -17,9 +15,9 @@ namespace DataManager
         public async Task UploadFileAsync(string fileName, string yandexDiskTarget)
         {
             IDiskApi diskApi = new DiskHttpApi("AgAAAABQNcSVAADLW8Rn_gQcNkrhlIhLGyzFvWM");
-            var targtPath = Path.TrimEndingDirectorySeparator(yandexDiskTarget) + "/"+ Path.GetFileName(fileName);
+            var targetPath = Path.TrimEndingDirectorySeparator(yandexDiskTarget) + "/"+ Path.GetFileName(fileName);
 
-            await diskApi.Files.UploadFileAsync(targtPath, false, fileName, CancellationToken.None);
+            await diskApi.Files.UploadFileAsync(targetPath, false, fileName, CancellationToken.None);
         }
 
         public async Task UploadDirectoryAsync(string directoryName, string yandexDiskTarget,
@@ -41,7 +39,7 @@ namespace DataManager
                     fileUploadStatuses[filename] = true;
                     progress.Report(new UploadProgressData(new Dictionary<string, bool>(fileUploadStatuses)));
                 });
-
+                
                 await Task.WhenAll(uploadingTasks);
             }
             else
