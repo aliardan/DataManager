@@ -19,7 +19,7 @@ namespace DataManager
             var files = Directory.GetFiles(args[0]);
             var uploadingTasks = files.Select(async x =>
             {
-                await dataManager.UploadAsync(x, args[1]);
+                await dataManager.UploadFileAsync(x, args[1]);
             });
             Console.WriteLine("Files are being uploaded");
             await Task.WhenAll(uploadingTasks);
