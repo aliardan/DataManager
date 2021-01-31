@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DataManager": {
+      "commandName": "Project",
+      "commandLineArgs": "/ testFolder"
+    }
+  }
+}
