@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DataManager
@@ -14,16 +15,14 @@ namespace DataManager
             }
 
             DataManager dataManager = new DataManager();
-            var files = Directory.GetFiles(args[0]);
-            Console.WriteLine("Files are being uploaded");
-            int counter = 1;
-            foreach (var file in files)
-            {
-                Console.WriteLine($"File {file} is being uploaded ({counter}/{files.Length})");
-                await dataManager.UploadAsync(file, args[1]);
-                counter++;
-            }
 
+            var files = Directory.GetFiles(args[0]);
+            var uploadingTasks = files.Select(async x =>
+            {
+                await dataManager.UploadAsync(x, args[1]);
+            });
+            Console.WriteLine("Files are being uploaded");
+            await Task.WhenAll(uploadingTasks);
             Console.WriteLine("All files have been uploaded");
         }
     }
