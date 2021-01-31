@@ -22,15 +22,35 @@ namespace DataManager
             await diskApi.Files.UploadFileAsync(targtPath, false, fileName, CancellationToken.None);
         }
 
-        public async Task UploadDirectoryAsync(string directoryName, string yandexDiskTarget)
+        public async Task UploadDirectoryAsync(string directoryName, string yandexDiskTarget,
+            IProgress<UploadProgressData> progress = null)
         {
-            var files = Directory.GetFiles(directoryName);
-            var uploadingTasks = files.Select(async x =>
+            if (progress != null)
             {
-                await this.UploadFileAsync(x, yandexDiskTarget);
-            });
-            
-            await Task.WhenAll(uploadingTasks);
+                var files = Directory.GetFiles(directoryName);
+
+                Dictionary<string, bool> fileUploadStatuses = new Dictionary<string, bool>(files.Length);
+                foreach (var file in files)
+                {
+                    fileUploadStatuses.Add(file, false);
+                }
+
+                var uploadingTasks = files.Select(async filename =>
+                {
+                    await UploadFileAsync(filename, yandexDiskTarget);
+                    fileUploadStatuses[filename] = true;
+                    progress.Report(new UploadProgressData(new Dictionary<string, bool>(fileUploadStatuses)));
+                });
+
+                await Task.WhenAll(uploadingTasks);
+            }
+            else
+            {
+                var files = Directory.GetFiles(directoryName);
+                var uploadingTasks = files.Select(async x => { await this.UploadFileAsync(x, yandexDiskTarget); });
+
+                await Task.WhenAll(uploadingTasks);
+            }
         }
     }
 }

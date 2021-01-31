@@ -15,15 +15,23 @@ namespace DataManager
             }
 
             DataManager dataManager = new DataManager();
+            Progress<UploadProgressData> progress = new Progress<UploadProgressData>();
 
-            var files = Directory.GetFiles(args[0]);
-            var uploadingTasks = files.Select(async x =>
-            {
-                await dataManager.UploadFileAsync(x, args[1]);
-            });
             Console.WriteLine("Files are being uploaded");
-            await Task.WhenAll(uploadingTasks);
+            
+            progress.ProgressChanged += ProgressOnProgressChanged;
+            await dataManager.UploadDirectoryAsync(args[0], args[1], progress);
+
             Console.WriteLine("All files have been uploaded");
+        }
+
+        private static void ProgressOnProgressChanged(object? sender, UploadProgressData e)
+        {
+            foreach (var fileStatus in e.FileUploadStatuses)
+            {
+                var statusstring = fileStatus.Value == true ? "Uploaded" : "Is being uploaded";
+                Console.WriteLine($"{fileStatus.Key} [{statusstring}]");
+            }
         }
     }
 }
